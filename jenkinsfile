@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_REPO = "mandalakodandarao"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Jars') {
+            steps {
+                sh '''
+                cd api-gateway && mvn clean package
+                cd ../user-service && mvn clean package
+                cd ../order-service && mvn clean package
+                cd ../payment-service && mvn clean package
+                '''
+            }
+        }
+
+        stage('Build Images') {
+            steps {
+                sh '''
+                docker build -t $DOCKER_REPO/frontend:${BUILD_NUMBER} frontend/
+                docker build -t $DOCKER_REPO/api-gateway:${BUILD_NUMBER} api-gateway/
+                docker build -t $DOCKER_REPO/user-service:${BUILD_NUMBER} user-service/
+                docker build -t $DOCKER_REPO/order-service:${BUILD_NUMBER} order-service/
+                docker build -t $DOCKER_REPO/payment-service:${BUILD_NUMBER} payment-service/
+                '''
+            }
+        }
+
+        stage('Push Images') {
+            steps {
+                sh '''
+                docker push $DOCKER_REPO/frontend:${BUILD_NUMBER}
+                docker push $DOCKER_REPO/api-gateway:${BUILD_NUMBER}
+                docker push $DOCKER_REPO/user-service:${BUILD_NUMBER}
+                docker push $DOCKER_REPO/order-service:${BUILD_NUMBER}
+                docker push $DOCKER_REPO/payment-service:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                kubectl apply -f k8s/
+                '''
+            }
+        }
+    }
+}
