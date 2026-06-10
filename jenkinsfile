@@ -23,22 +23,19 @@ pipeline {
                 '''
             }
         }
-
         stage('Build Images') {
             steps {
-                sh '''
-                docker build -t $DOCKER_REPO/frontend:${BUILD_NUMBER} frontend/
-                docker build -t $DOCKER_REPO/api-gateway:${BUILD_NUMBER} api-gateway/
-                docker build -t $DOCKER_REPO/user-service:${BUILD_NUMBER} user-service/
-                docker build -t $DOCKER_REPO/order-service:${BUILD_NUMBER} order-service/
-                docker build -t $DOCKER_REPO/payment-service:${BUILD_NUMBER} payment-service/
+                    sh '''
+                docker build -t <dockerhub-username>/api-gateway:latest Dockerfile/api-gateway_docfile
+                docker build -t <dockerhub-username>/user-service:latest Dockerfile/user-service_docfile
+                docker build -t <dockerhub-username>/order-service:latest Dockerfile/order-service_docfile
+                docker build -t <dockerhub-username>/payment-service:latest Dockerfile/payment-service_docfile
                 '''
-            }
-        }
+    }
+}
 
         stage('Push Images') {
-            steps {
-                sh '''
+            steps {                sh '''
                 docker push $DOCKER_REPO/frontend:${BUILD_NUMBER}
                 docker push $DOCKER_REPO/api-gateway:${BUILD_NUMBER}
                 docker push $DOCKER_REPO/user-service:${BUILD_NUMBER}
