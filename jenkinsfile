@@ -1,56 +1,66 @@
 pipeline {
-    agent any
+agent any
 
-    environment {
-        DOCKER_REPO = "mandalakodanda"
-    }
-
-    stages {
-
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Build Jars') {
-            steps {
-                sh '''
-                cd api-gateway && mvn clean package
-                cd ../user-service && mvn clean package
-                cd ../order-service && mvn clean package
-                cd ../payment-service && mvn clean package
-                '''
-            }
-        }
-        stage('Build Images') {
-            steps {
-                    sh '''
-                docker build -t <dockerhub-username>/api-gateway:latest Dockerfile/api-gateway_docfile
-                docker build -t <dockerhub-username>/user-service:latest Dockerfile/user-service_docfile
-                docker build -t <dockerhub-username>/order-service:latest Dockerfile/order-service_docfile
-                docker build -t <dockerhub-username>/payment-service:latest Dockerfile/payment-service_docfile
-                '''
-    }
+```
+environment {
+    DOCKER_REPO = "mandalakodanda"
 }
 
-        stage('Push Images') {
-            steps {                sh '''
-                docker push $DOCKER_REPO/frontend:${BUILD_NUMBER}
-                docker push $DOCKER_REPO/api-gateway:${BUILD_NUMBER}
-                docker push $DOCKER_REPO/user-service:${BUILD_NUMBER}
-                docker push $DOCKER_REPO/order-service:${BUILD_NUMBER}
-                docker push $DOCKER_REPO/payment-service:${BUILD_NUMBER}
-                '''
-            }
-        }
+stages {
 
-        stage('Deploy') {
-            steps {
+    stage('Checkout') {
+        steps {
+            checkout scm
+        }
+    }
+
+    stage('Build Images') {
+        steps {
+            sh '''
+            docker build -t $DOCKER_REPO/api-gateway:${BUILD_NUMBER} Dockerfile/api-gateway_docfile
+            docker build -t $DOCKER_REPO/user-service:${BUILD_NUMBER} Dockerfile/user-service_docfile
+            docker build -t $DOCKER_REPO/order-service:${BUILD_NUMBER} Dockerfile/order-service_docfile
+            docker build -t $DOCKER_REPO/payment-service:${BUILD_NUMBER} Dockerfile/payment-service_docfile
+            docker build -t $DOCKER_REPO/frontend:${BUILD_NUMBER} Dockerfile/frontend_docfile
+            '''
+        }
+    }
+
+    stage('Docker Login') {
+        steps {
+            withCredentials([usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'DOCKER_USER',
+                passwordVariable: 'DOCKER_PASS'
+            )]) {
                 sh '''
-                kubectl apply -f k8s/
+                echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                 '''
             }
         }
     }
+
+    stage('Push Images') {
+        steps {
+            sh '''
+            docker push $DOCKER_REPO/api-gateway:${BUILD_NUMBER}
+            docker push $DOCKER_REPO/user-service:${BUILD_NUMBER}
+            docker push $DOCKER_REPO/order-service:${BUILD_NUMBER}
+            docker push $DOCKER_REPO/payment-service:${BUILD_NUMBER}
+            docker push $DOCKER_REPO/frontend:${BUILD_NUMBER}
+            '''
+        }
+    }
+
+    stage('Deploy') {
+        steps {
+            sh '''
+            kubectl apply -f k8s/
+            '''
+        }
+    }
 }
+```
+
+}
+
