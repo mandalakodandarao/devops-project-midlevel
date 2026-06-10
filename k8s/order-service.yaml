@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: order-service
-        image: mandalakodandarao/order-service:IMAGE_TAG
+        image: mandalakodanda/order-service:IMAGE_TAG
 
         ports:
         - containerPort: 8080

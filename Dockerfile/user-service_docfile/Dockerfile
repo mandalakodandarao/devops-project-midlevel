@@ -1,9 +1,13 @@
-FROM eclipse-temurin:17-jre
+FROM node:20-alpine
 
 WORKDIR /app
 
-COPY target/user-service.jar app.jar
+COPY package*.json ./
 
-EXPOSE 8080
+RUN npm install
 
-ENTRYPOINT ["java","-jar","app.jar"]
+COPY . .
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
