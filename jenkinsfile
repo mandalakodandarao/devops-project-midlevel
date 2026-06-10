@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REPO = "mandalakodandarao"
+        DOCKER_REPO = "mandalakodanda"
     }
 
     stages {
