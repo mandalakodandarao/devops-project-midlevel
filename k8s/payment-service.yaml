@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: payment-service
-        image: mandalakodanda/payment-service:IMAGE_TAG
+        image: mandalakodanda/payment-service:7
 
         ports:
         - containerPort: 8080

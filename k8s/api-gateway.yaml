@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: mandalakodanda/api-gateway:IMAGE_TAG
+        image: mandalakodanda/api-gateway:7
 
         ports:
         - containerPort: 8080

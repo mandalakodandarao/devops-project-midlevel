@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: mandalakodanda/frontend:IMAGE_TAG
+        image: mandalakodanda/frontend:7
 
         ports:
         - containerPort: 80
